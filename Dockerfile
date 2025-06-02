@@ -1,13 +1,16 @@
-FROM python:3.10-slim
+FROM python:3.9-slim-buster
 
-RUN apt-get update && \
-    apt-get install -y wget unzip gnupg2 curl && \
-    apt-get install -y chromium chromium-driver && \
-    pip install selenium
+RUN apt-get update && apt-get install -y \
+    chromium-driver \
+    chromium \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
 
-ENV PATH="/usr/lib/chromium/:$PATH"
-
-COPY . /app
 WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
 
 CMD ["python", "keepalive.py"]
