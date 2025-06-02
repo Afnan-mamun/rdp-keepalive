@@ -7,12 +7,13 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 
-# --- এনভায়রনমেন্ট ভেরিয়েবল থেকে প্রয়োজনীয় তথ্য ---
-# এই মানগুলো Render.com এর সেটিংসে (Environment Variables) দিতে হবে
+# --- অ্যাকাউন্ট-নির্দিষ্ট তথ্য সরাসরি এখানে সেট করা হয়েছে ---
+# **সতর্কতা: এটি নিরাপত্তার জন্য ঝুঁকি তৈরি করে।**
+# **আপনার কুকি ভ্যালু এখানে সরাসরি উন্মুক্ত থাকবে।**
 COOKIE_NAME = "WorkstationJwtPartitioned"
-COOKIE_VALUE = os.getenv("COOKIE_VALUE")
-TARGET_URL = os.getenv("TARGET_URL")
-VNC_URL_PREFIX = "https://80-firebase-second" # VNC URL এর শুরুর অংশ
+COOKIE_VALUE = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2Nsb3VkLmdvb2dsZS5jb2xvd29ya3N0YXRpb25zIiwiYXVkIjoiZmlyZWJhc2Utc2Vjb25kLTE3NDg3MjAyNjAyNDIuY2x1c3Rlci1lamQyMmtxbnk1aHR1djVkZm93b3lpcHQ1Mi5jbG91ZHdvcmtzdGF0aW9ucy5kZXYiLCJpYXQiOjE3NDg4NDIxMTYsImV4cCI6MTc0ODkyODUxNn0.JRuXciKCv63b8Jm_XTmhqhkLN_JCVw1pIEoLdn81tXiGTU6Tld_XoTrC4OkB7KMl_rX3IoevRy9A1TB2Xsrf-yTbK9AACzibBhprfjjkTLFMJlEd4sCjA_mPAFYVvxfpkL0G3mgW5jcOriMor89w_yqTcV7L7BQY7WeWjdhnNcc5Ys2Kzv4UKOcHURLW_UIPky9j6QJ9FGqGNEyq9u3jbeCtL0O29Yn2r1yZoP8ha_L2bejhj5aFuRjO96jVFtooB0P5F3-_9blZG5wXiy7T4SE73io7JFQ_YTO8Lv9lOVfgnMNQEu9hbgRksY1UA3yPaaFwh09_pj4B-H6SIDT-WA"
+TARGET_URL = "https://studio.firebase.google.com/?utm_source=firebase_studio_marketing&utm_medium=et&utm_campaign=FY25-Q2-firebasestudio_nextlaunch&utm_content=hero_tryfirebasestudio&utm_term=-&pli=1"
+VNC_URL_PREFIX = "https://80-firebase-second" # VNC URL এর শুরুর অংশ (এটি সম্ভবত একই থাকবে)
 
 # --- Selenium সেটআপ ---
 chrome_options = Options()
@@ -33,7 +34,7 @@ cookie = {
     'secure': True,
 }
 driver.add_cookie(cookie)
-driver.refresh() # কুকি কার্যকর করার জন্য প্রথম রিফ্রেশ
+driver.refresh()
 print("✅ কুকি সেট করা হয়েছে, প্রথম পেজ রিলোড দেওয়া হলো...")
 
 # ধাপ ২: main-target বাটনে ক্লিক করা এবং দ্বিতীয় পেজ লোড হওয়া পর্যন্ত অপেক্ষা
@@ -43,26 +44,25 @@ try:
     button.click()
     print("🚀 আরডিপি চালু করা হলো (main-target বাটনে ক্লিক করা হয়েছে)")
     
-    # দ্বিতীয় পেজ লোড হওয়া পর্যন্ত অপেক্ষা করা (studio.firebase.google.com/second-...)
+    # দ্বিতীয় পেজ লোড হওয়া পর্যন্ত অপেক্ষা করা
     wait.until(EC.url_contains("/second-"))
     print("🌐 দ্বিতীয় পেজ লোড হয়েছে: " + driver.current_url)
 
     # এখন VNC পেজ লোড হওয়ার জন্য অপেক্ষা করা
-    VNC_LOAD_TIMEOUT = 45 # VNC লোড হওয়ার জন্য সর্বোচ্চ অপেক্ষা (সেকেন্ডে)
+    VNC_LOAD_TIMEOUT = 45
     start_time = time.time()
     vnc_loaded = False
     while time.time() - start_time < VNC_LOAD_TIMEOUT:
         if driver.current_url.startswith(VNC_URL_PREFIX):
             try:
-                # VNC ক্যানভাস এলিমেন্ট লোড হয়েছে কিনা তা চেক করা
                 WebDriverWait(driver, 5).until(
                     EC.presence_of_element_located((By.TAG_NAME, "canvas"))
                 )
                 vnc_loaded = True
                 break
             except:
-                pass # ক্যানভাস এখনও লোড হয়নি, অপেক্ষা করুন
-        time.sleep(1) # প্রতি সেকেন্ডে চেক করুন
+                pass
+        time.sleep(1)
 
     if vnc_loaded:
         print("✅ VNC রিমোট উবুন্টু সিস্টেম লোড হয়েছে: " + driver.current_url)
@@ -79,7 +79,6 @@ except Exception as e:
 # --- VNC পেজে সক্রিয় থাকার জন্য লুপ ---
 while True:
     try:
-        # 1. VNC ক্যানভাস এলিমেন্ট সনাক্ত করা
         vnc_canvas = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.TAG_NAME, "canvas"))
         )
@@ -87,12 +86,11 @@ while True:
 
         actions = ActionChains(driver)
 
-        # 2. ক্যানভাসের উপর মাউস নড়াচড়া সিমুলেট করা
         actions.move_to_element(vnc_canvas).perform()
         print("🖱️ কার্সর VNC ক্যানভাসের কেন্দ্রে নেওয়া হলো।")
         time.sleep(2)
 
-        for _ in range(3): # 3টি ভিন্ন স্থানে ক্লিক করুন
+        for _ in range(3):
             x_offset = int(vnc_canvas.size['width'] * (0.2 + 0.6 * (time.time() % 1)))
             y_offset = int(vnc_canvas.size['height'] * (0.2 + 0.6 * (time.time() % 1)))
 
@@ -100,7 +98,6 @@ while True:
             print(f"🖱️ ক্যানভাসে ক্লিক করা হলো (অফসেট: {x_offset}, {y_offset})।")
             time.sleep(2)
 
-        # 3. ব্রাউজারের মধ্যে স্ক্রল করা (যদি VNC পেজ স্ক্রলযোগ্য হয়)
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         print("⏬ পেজ নিচে স্ক্রল করা হলো।")
         time.sleep(1)
@@ -111,4 +108,4 @@ while True:
         print(f"❌ VNC সেশন সক্রিয় রাখার কার্যকলাপ ব্যর্থ: {e}")
 
     finally:
-        time.sleep(300) # ৫ মিনিট অপেক্ষা (আপনার প্রয়োজন অনুযায়ী পরিবর্তন করুন)
+        time.sleep(300)
