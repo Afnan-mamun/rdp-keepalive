@@ -10,10 +10,16 @@ from selenium.webdriver.common.action_chains import ActionChains
 # --- অ্যাকাউন্ট-নির্দিষ্ট তথ্য সরাসরি এখানে সেট করা হয়েছে ---
 # **সতর্কতা: এটি নিরাপত্তার জন্য ঝুঁকি তৈরি করে।**
 # **আপনার কুকি ভ্যালু এখানে সরাসরি উন্মুক্ত থাকবে।**
+#
+# **পরিবর্তন করার জন্য:**
+#   1. 'COOKIE_VALUE' এর ডাবল কোটেশনের মধ্যে আপনার অ্যাকাউন্টের কুকি ভ্যালু বসান।
+#   2. 'TARGET_URL' যদি ভিন্ন হয়, তবে সেটাও পরিবর্তন করুন।
+#   3. 'VNC_URL_PREFIX' সাধারণত একই থাকবে, তবে যদি VNC URL এর শুরুর অংশ পরিবর্তন হয়, তবে সেটিও পরিবর্তন করুন।
+#
 COOKIE_NAME = "WorkstationJwtPartitioned"
-COOKIE_VALUE = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2Nsb3VkLmdvb2dsZS5jb2xvd29ya3N0YXRpb25zIiwiYXVkIjoiZmlyZWJhc2Utc2Vjb25kLTE3NDg3MjAyNjAyNDIuY2x1c3Rlci1lamQyMmtxbnk1aHR1djVkZm93b3lpcHQ1Mi5jbG91ZHdvcmtzdGF0aW9ucy5kZXYiLCJpYXQiOjE3NDg4NDIxMTYsImV4cCI6MTc0ODkyODUxNn0.JRuXciKCv63b8Jm_XTmhqhkLN_JCVw1pIEoLdn81tXiGTU6Tld_XoTrC4OkB7KMl_rX3IoevRy9A1TB2Xsrf-yTbK9AACzibBhprfjjkTLFMJlEd4sCjA_mPAFYVvxfpkL0G3mgW5jcOriMor89w_yqTcV7L7BQY7WeWjdhnNcc5Ys2Kzv4UKOcHURLW_UIPky9j6QJ9FGqGNEyq9u3jbeCtL0O29Yn2r1yZoP8ha_L2bejhj5aFuRjO96jVFtooB0P5F3-_9blZG5wXiy7T4SE73io7JFQ_YTO8Lv9lOVfgnMNQEu9hbgRksY1UA3yPaaFwh09_pj4B-H6SIDT-WA"
+COOKIE_VALUE = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2Nsb3VkLmdvb2dsZS5jb20vd29ya3N0YXRpb25zIiwiYXVkIjoiZmlyZWJhc2Utc2Vjb25kLTE3NDg3MjAyNjAyNDIuY2x1c3Rlci1lamQyMmtxbnk1aHR1djVkZm93b3lpcHQ1Mi5jbG91ZHdvcmtzdGF0aW9ucy5kZXYiLCJpYXQiOjE3NDg4NDIxMTYsImV4cCI6MTc0ODkyODUxNn0.JRuXciKCv63b8Jm_XTmhqhkLN_JCVw1pIEoLdn81tXiGTU6Tld_XoTrC4OkB7KMl_rX3IoevRy9A1TB2Xsrf-yTbK9AACzibBhprfjjkTLFMJlEd4sCjA_mPAFYVvxfpkL0G3mgW5jcOriMor89w_yqTcV7L7BQY7WeWjdhnNcc5Ys2Kzv4UKOcHURLW_UIPky9j6QJ9FGqGNEyq9u3jbeCtL0O29Yn2r1yZoP8ha_L2bejhj5aFuRjO96jVFtooB0P5F3-_9blZG5wXiy7T4SE73io7JFQ_YTO8Lv9lOVfgnMNQEu9hbgRksY1UA3yPaaFwh09_pj4B-H6SIDT-WA"
 TARGET_URL = "https://studio.firebase.google.com/?utm_source=firebase_studio_marketing&utm_medium=et&utm_campaign=FY25-Q2-firebasestudio_nextlaunch&utm_content=hero_tryfirebasestudio&utm_term=-&pli=1"
-VNC_URL_PREFIX = "https://80-firebase-second" # VNC URL এর শুরুর অংশ (এটি সম্ভবত একই থাকবে)
+VNC_URL_PREFIX = "https://80-firebase-second"
 
 # --- Selenium সেটআপ ---
 chrome_options = Options()
@@ -29,7 +35,7 @@ driver.get(TARGET_URL)
 cookie = {
     'name': COOKIE_NAME,
     'value': COOKIE_VALUE,
-    'domain': ".google.com",
+    'domain': "studio.firebase.google.com", # এই লাইনটি পরিবর্তন করা হয়েছে
     'path': '/',
     'secure': True,
 }
@@ -44,11 +50,9 @@ try:
     button.click()
     print("🚀 আরডিপি চালু করা হলো (main-target বাটনে ক্লিক করা হয়েছে)")
     
-    # দ্বিতীয় পেজ লোড হওয়া পর্যন্ত অপেক্ষা করা
     wait.until(EC.url_contains("/second-"))
     print("🌐 দ্বিতীয় পেজ লোড হয়েছে: " + driver.current_url)
 
-    # এখন VNC পেজ লোড হওয়ার জন্য অপেক্ষা করা
     VNC_LOAD_TIMEOUT = 45
     start_time = time.time()
     vnc_loaded = False
